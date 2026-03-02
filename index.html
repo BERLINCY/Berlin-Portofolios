@@ -1,172 +1,588 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Berlin Chen - Photographer </title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Berlin Chen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Josefin+Sans:wght@100;200;300;400&family=DM+Sans:ital,wght@0,200;0,300;0,400;1,200&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <link rel="stylesheet" href="assets/css/bootstrap.css">
-    <link rel="stylesheet" href="assets/css/myStyle.css">
+    :root {
+      --bg: #F2F3F5;
+      --surface: #E8EAED;
+      --text: #161819;
+      --muted: #9299A0;
+      --accent: #4A6FA5;
+      --border: #D4D7DC;
+      --white: #FFFFFF;
+    }
 
-    <script src="assets/js/jquery.js"></script>
-    <script src="assets/js/jquery.sticky.js"></script>
+    html { scroll-behavior: smooth; }
 
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 200;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      width: 8px; height: 8px;
+      background: var(--text);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(22,24,25,0.25);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.35s, height 0.35s, border-color 0.3s;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 32px 52px;
+      transition: background 0.4s, padding 0.4s, border-color 0.4s;
+      border-bottom: 1px solid transparent;
+    }
+    nav.over-hero .nav-logo,
+    nav.over-hero .nav-links a { color: rgba(255,255,255,0.75); }
+    nav.over-hero .nav-links a::after { background: rgba(255,255,255,0.5); }
+    nav.scrolled {
+      background: rgba(242,243,245,0.94);
+      backdrop-filter: blur(16px);
+      padding: 18px 52px;
+      border-bottom-color: var(--border);
+    }
+    nav.scrolled .nav-logo { color: var(--text); }
+    nav.scrolled .nav-links a { color: var(--muted); }
+
+    .nav-logo {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.7rem; font-weight: 300;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: var(--text); text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links { display: flex; gap: 44px; list-style: none; }
+    .nav-links a {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none;
+      transition: color 0.25s; position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px; background: var(--accent);
+      transition: width 0.35s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative; width: 100%; height: 100vh;
+      overflow: hidden; background: #0d0e10;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('assets/img/portrait.JPG');
+      background-size: cover; background-position: center 20%;
+      filter: brightness(0.45) grayscale(25%);
+      transform: scale(1.05);
+      transition: transform 10s ease;
+    }
+    #hero:hover .hero-bg { transform: scale(1.0); }
+    .hero-bg-fallback {
+      position: absolute; inset: 0;
+      background: linear-gradient(150deg, #1c2130 0%, #0d0e10 100%);
+    }
+    .hero-content {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 52px 64px;
+    }
+    .hero-eyebrow {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
+      color: rgba(255,255,255,0.38); margin-bottom: 18px;
+      animation: fadeUp 1s 0.2s both;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5.5rem, 13vw, 12rem);
+      line-height: 0.9; letter-spacing: 0.02em;
+      color: var(--white);
+      animation: fadeUp 1s 0.35s both;
+    }
+    .hero-title .sub {
+      display: block; margin-top: 20px;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+      font-weight: 100; letter-spacing: 0.32em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+    .hero-scroll {
+      position: absolute; right: 52px; bottom: 64px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      animation: fadeUp 1s 0.8s both;
+    }
+    .hero-scroll span {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(255,255,255,0.28); writing-mode: vertical-rl;
+    }
+    .scroll-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.35), transparent);
+      animation: scrollPulse 2.2s 1.5s infinite;
+    }
+    @keyframes scrollPulse {
+      0%   { transform: scaleY(0); transform-origin: top; opacity:1; }
+      50%  { transform: scaleY(1); transform-origin: top; opacity:1; }
+      51%  { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; opacity:0; }
+    }
+
+    /* ── INDEX BAR ── */
+    .index-bar {
+      display: flex; border-bottom: 1px solid var(--border);
+    }
+    .index-item {
+      flex: 1; padding: 18px 52px;
+      border-right: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .index-item:last-child { border-right: none; }
+    .index-item span {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .index-num { color: var(--border) !important; }
+
+    /* ── ABOUT ── */
+    #about {
+      display: grid; grid-template-columns: 1fr 2fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .about-left {
+      padding: 72px 52px; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .section-num {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--border); margin-bottom: 40px;
+    }
+    .about-left h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.6rem, 4vw, 4rem);
+      letter-spacing: 0.04em; line-height: 1.0;
+    }
+    .about-location {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); margin-top: 48px; line-height: 2;
+    }
+    .about-right {
+      padding: 72px 52px;
+      display: flex; flex-direction: column; gap: 56px;
+    }
+    .about-bio p {
+      font-size: 0.8rem; line-height: 1.95; color: var(--muted); margin-bottom: 14px;
+    }
+    .about-bio p strong { color: var(--text); font-weight: 300; }
+    .about-skills {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+    }
+    .skill-group-label {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 14px;
+    }
+    .skill-list { list-style: none; }
+    .skill-list li {
+      font-size: 0.72rem; color: var(--muted);
+      padding: 7px 0; border-bottom: 1px solid var(--border);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── WORK GRID ── */
+    .work-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .work-card {
+      position: relative; overflow: hidden;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      cursor: none;
+    }
+    .work-card:nth-child(even) { border-right: none; }
+    .work-card-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: grayscale(20%);
+      transform: scale(1.04);
+      transition: transform 0.7s ease, filter 0.5s ease;
+    }
+    .work-card:hover .work-card-img {
+      transform: scale(1.0);
+      filter: grayscale(0%);
+    }
+    .work-card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(14,15,16,0.75) 0%, transparent 55%);
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .work-card:hover .work-card-overlay { opacity: 1; }
+    .work-card-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 28px 32px;
+      transform: translateY(8px);
+      transition: transform 0.4s ease, opacity 0.4s;
+      opacity: 0;
+    }
+    .work-card:hover .work-card-info { transform: translateY(0); opacity: 1; }
+    .work-card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; letter-spacing: 0.04em;
+      color: var(--white); margin-bottom: 4px;
+    }
+    .work-card-sub {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    .work-coming {
+      grid-column: 1 / -1;
+      padding: 96px 52px; text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .work-coming p {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: 55vh;
+    }
+    .contact-left {
+      padding: 72px 52px; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .contact-left h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.6rem, 4vw, 4rem);
+      letter-spacing: 0.04em; line-height: 1.0;
+    }
+    .available-badge {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); display: flex; align-items: center; gap: 10px;
+      margin-top: 40px;
+    }
+    .available-dot {
+      width: 6px; height: 6px; background: #5aad78; border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(90,173,120,0.4);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(90,173,120,0.4); }
+      70%  { box-shadow: 0 0 0 8px rgba(90,173,120,0); }
+      100% { box-shadow: 0 0 0 0 rgba(90,173,120,0); }
+    }
+    .contact-right {
+      padding: 72px 52px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .contact-fields { display: flex; flex-direction: column; gap: 28px; }
+    .contact-field label {
+      display: block;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.56rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 5px;
+    }
+    .contact-field a, .contact-field p {
+      font-size: 0.8rem; color: var(--text); text-decoration: none; transition: color 0.2s;
+    }
+    .contact-field a:hover { color: var(--accent); }
+    .contact-socials {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      padding-top: 40px; border-top: 1px solid var(--border);
+    }
+    .social-link {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; transition: color 0.25s;
+    }
+    .social-link:hover { color: var(--text); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 22px 52px; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    footer p {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+    }
+    .resume-link {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--text); text-decoration: none;
+      border-bottom: 1px solid var(--border); padding-bottom: 2px;
+      transition: color 0.25s, border-color 0.25s;
+    }
+    .resume-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.85s ease, transform 0.85s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(26px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+      nav { padding: 22px 24px; }
+      nav.scrolled { padding: 16px 24px; }
+      .nav-links { gap: 22px; }
+      .hero-content { padding: 0 24px 52px; }
+      .hero-scroll { right: 24px; bottom: 52px; }
+      .index-bar { flex-direction: column; }
+      .index-item { border-right: none; border-bottom: 1px solid var(--border); padding: 14px 24px; }
+      #about { grid-template-columns: 1fr; }
+      .about-left { border-right: none; border-bottom: 1px solid var(--border); padding: 48px 24px; }
+      .about-right { padding: 48px 24px; gap: 40px; }
+      .about-skills { grid-template-columns: 1fr; gap: 28px; }
+      .work-header { padding: 36px 24px 24px; }
+      .work-coming { padding: 72px 24px; }
+      #contact { grid-template-columns: 1fr; }
+      .contact-left { border-right: none; border-bottom: 1px solid var(--border); padding: 48px 24px; }
+      .contact-right { padding: 48px 24px; }
+      footer { padding: 18px 24px; flex-direction: column; gap: 10px; text-align: center; }
+    }
+  </style>
 </head>
 <body>
-<div class="site-wrapper">
-    <div class="site-main">
-        <div class="fullPage welcomePage hero-image fullPage-image" >
-            <p class="firstTitle text-color--red">PHOTOGRAPHY</p>
-            <nav class="main-nav text-color--red">
-                <ul>
-                    <li><a class="underlined--white" href="#about">About</a></li>
-                    <li><a class="underlined--white" href="#work">Work</a></li>
-                    <li><a class="underlined--white" href="#contact">Contact</a></li>
-                </ul>
-            </nav>
 
-        </div>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
 
-        <div class="splitPage aboutPage" id="about">
-            <div class="leftSide sticker1">
-                <H1 class="chapterTitle"><a href="#about">About</a></H1>
+  <!-- NAV -->
+  <nav id="nav" class="over-hero">
+    <a href="#hero" class="nav-logo">Berlin Chen</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
 
-                <!--<img class="portrait responsive" src="Assets/img/portrait.JPG" alt=""/>-->
-
-            </div>
-            <div class="rightSide">
-                <div class="aboutContent">
-                    <figure>
-                        <img src="assets/img/portrait.JPG" class="aboutImg" alt="Berlin Chen">
-                        <figcaption style="text-align: center">Berlin Chen</figcaption>
-                    </figure>
-                    <p><b>I am a front-end developer and photographer from China living in Singapore.</b></p>
-                    <ul>
-                        <li>Frontend developer</li>
-                        <p>with a diverse set of skills,HTML + CSS + Javascript…</p>
-                        <p>working on design user interfaces and build user experience…..</p>
-
-                        <li>Photograph</li>
-                        <p> I also take pictures of the world…..</p>
-
-                        <li>Frontend developer</li>
-                        <p>with a diverse set of skills,HTML + CSS + Javascript…</p>
-                        <p>working on design user interfaces and build user experience…..</p>
-
-                        <li>Photograph</li>
-                        <p> I also take pictures of the world…..</p>
-                        <li>Frontend developer</li>
-                        <p>with a diverse set of skills,HTML + CSS + Javascript…</p>
-                        <p>working on design user interfaces and build user experience…..</p>
-
-                        <li>Photograph</li>
-                        <p> I also take pictures of the world…..</p>
-                    </ul>
-
-
-                </div>
-            </div>
-        </div>
-
-        <div class="splitPage workPage" id="work" >
-            <div class="leftSide sticker2">
-                <H1 class="chapterTitle">WORK</H1>
-            </div>
-            <div class="rightSide">
-                <div class="aboutContent">
-                    <p><b>I am a UX Designer and Art Director from Austria living in Berlin.</b></p>
-                </div>
-            </div>
-        </div>
-
-        <div class="splitPage contactPage" id="contact">
-            <div class="leftSide sticker3">
-                <H1 class="chapterTitle">CONTACT</H1>
-            </div>
-            <div class="rightSide">
-                <div class="aboutContent">
-                    If you want to collaborate on crafting amazing experience for people – you are very welcome to contact me.
-
-                    I am available for freelance projects and full-time employment.
-
-                    Melanie Daveid
-
-                    UX Design & Art Direction
-                    berlincy@gmail.com
-                    +65 91318608
-                    <div class="socialLogo">
-                        <img src="assets/img/logo/gmail-logo.svg">
-                        <img src="assets/img/logo/phone-receiver.svg">
-                        <img src="assets/img/logo/instagram-logo.svg">
-                        <img src="assets/img/logo/linkedin-logo.svg">
-                    </div>
-
-
-                </div>
-            </div>
-        </div>
-
-        <div class="fullPage endPage footer-image fullPage-image" >
-
-        </div>
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg-fallback"></div>
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">UIUX Designer &amp; Photographer — Singapore</p>
+      <h1 class="hero-title">
+        Berlin<br>Chen
+        <span class="sub">Design &nbsp;·&nbsp; Photography</span>
+      </h1>
     </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
 
-</div>
+  <!-- INDEX BAR -->
+  <div class="index-bar reveal">
+    <div class="index-item">
+      <span>UIUX Design</span>
+      <span class="index-num">01</span>
+    </div>
+    <div class="index-item">
+      <span>Photography</span>
+      <span class="index-num">02</span>
+    </div>
+    <div class="index-item">
+      <span>Freelance Available</span>
+      <span class="index-num">03</span>
+    </div>
+  </div>
 
-<script>
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-left reveal">
+      <div>
+        <div class="section-num">01 — About</div>
+        <h2>Singapore-<br>based<br>Creative</h2>
+      </div>
+      <p class="about-location">Based in Singapore<br>From China</p>
+    </div>
+    <div class="about-right">
+      <div class="about-bio reveal">
+        <p>I am a <strong>UIUX designer and photographer</strong> based in Singapore, with a focus on crafting intuitive digital experiences and capturing moments that last.</p>
+        <p>I explore the intersection of technology and human interaction — designing interfaces that feel natural, and images that tell stories without words.</p>
+        <p>Currently open to freelance collaborations and creative projects worldwide.</p>
+      </div>
+      <div class="about-skills reveal" style="transition-delay:0.12s">
+        <div>
+          <p class="skill-group-label">Design &amp; Dev</p>
+          <ul class="skill-list">
+            <li>HTML5 / CSS</li>
+            <li>JavaScript</li>
+            <li>Python / Java</li>
+            <li>Sketch / InVision</li>
+            <li>Illustrator</li>
+          </ul>
+        </div>
+        <div>
+          <p class="skill-group-label">Photography Gear</p>
+          <ul class="skill-list">
+            <li>Nikon D750</li>
+            <li>Sigma 35mm Art</li>
+            <li>Sigma 24-70 Art</li>
+            <li>Fujifilm X-T20</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 
-$(document).ready(function(){
+  <!-- WORK -->
+  <section id="work">
+    <div class="work-header reveal">
+      <h2>Work</h2>
+      <span>Selected Projects</span>
+    </div>
+    <div class="work-grid">
 
-    /* go to top after refresh */
-    $(window).scrollTop(0);
+      <!-- ─ 卡片 1：复制这个块来添加新项目 ─ -->
+      <div class="work-card reveal">
+        <img class="work-card-img" src="assets/img/jeju.jpg" alt="Jeju" />
+        <div class="work-card-overlay"></div>
+        <div class="work-card-info">
+          <p class="work-card-title">Jeju Island</p>
+          <p class="work-card-sub">Photography</p>
+        </div>
+      </div>
 
-    $(".sticker1").sticky({ topSpacing: 0});
-    $(".sticker2").sticky({ topSpacing: 0});
-    $(".sticker3").sticky({ topSpacing: 0});
+      <!-- ─ 卡片 2 ─ -->
+      <div class="work-card reveal" style="transition-delay:0.1s">
+        <img class="work-card-img" src="assets/img/turkey.jpg" alt="Turkey" />
+        <div class="work-card-overlay"></div>
+        <div class="work-card-info">
+          <p class="work-card-title">Turkey</p>
+          <p class="work-card-sub">Photography</p>
+        </div>
+      </div>
 
+      <!-- ─ 卡片 3：以后添加新项目就复制上面的块，换图片路径和文字 ─ -->
+      <!--
+      <div class="work-card reveal">
+        <img class="work-card-img" src="assets/img/你的图片.jpg" alt="项目名" />
+        <div class="work-card-overlay"></div>
+        <div class="work-card-info">
+          <p class="work-card-title">项目名称</p>
+          <p class="work-card-sub">UIUX Design / Photography</p>
+        </div>
+      </div>
+      -->
 
-//    var winScrollTo;
-//    var windowHeight = $(window).height();
-//
-//    $(document).scroll(function () {
-//        winScrollTo = $(window).scrollTop();
-//        console.log(winScrollTo);
-//    });
-//
-//    $('.sticker').on('sticky-start', function() {
-//        console.log("Sticky Started");
-//
-//        var contentHeight = $(".aboutContent").outerHeight();
-//        console.log(contentHeight);
-//        var contentScrollPos = $(".aboutContent").offset().top;
-//        console.log(contentScrollPos);
-//
-//        if((winScrollTo) > (contentHeight)){
-//            $(".sticker").unstick();
-//        }
-//
-//
-//    });
-//    $('.sticker').on('sticky-end', function() { console.log("Ended"); });
-//    $('.sticker').on('sticky-update', function() { console.log("Update"); });
-//    $('.sticker').on('sticky-bottom-reached', function() { console.log("Bottom reached"); });
-//    $('.sticker').on('sticky-bottom-unreached', function() { console.log("Bottom unreached"); });
+    </div>
+  </section>
 
-//    $(window).scroll(function () {
-//        var scrollTo = $(window).scrollTop();
-//        var docHeight = $(document).height();
-//        var windowHeight = $(window).height();
-//
-//
-//        if (scrollTo <= windowHeight){
-//            $(".rightSide").scroll(function(event){
-//                console.log(scrollTo + " " + windowHeight);
-//
-//                event.preventDefault();
-//            });
-//        }
-////        $(".rightSide").scrollTop($(".leftSide").scrollTop());
-//    });
-});
-</script>
-</body>
-</html>
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-left reveal">
+      <div>
+        <div class="section-num">03 — Contact</div>
+        <h2>Let's<br>Work<br>Together</h2>
+      </div>
+      <div class="available-badge">
+        <div class="available-dot"></div>
+        Available for projects
+      </div>
+    </div>
+    <div class="contact-right reveal" style="transition-delay:0.12s">
+      <div class="contact-fields">
+        <div class="contact-field">
+          <label>Email</label>
+          <a href="/cdn-cgi/l/email-protection#771512051b1e19140e37101a161e1b5914181a"><span class="__cf_email__" data-cfemail="274542554b4e49445e67404a464e4b0944484a">[email&#160;protected]</span></a>
+        </div>
+        <div class="contact-field">
+          <label>Phone</label>
+          <p>+65 9131 8608</p>
+        </div>
+        <div class="contact-field">
+          <label>Location</label>
+          <p>Singapore, SG</p>
+        </div>
+      </div>
+      <div class="contact-socials">
+        <a href="https://www.instagram.com/berlin_cy/" class="social-link" target="_blank">Instagram</a>
+        <a href="https://www.linkedin.com/in/berlin-chen-816234b2/" class="social-link" target="_blank">LinkedIn</a>
+        <a href="https://space.bilibili.com/16447647/#/" class="social-link" target="_blank">Bilibili</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 Berlin Chen</p>
+    <a href="https://drive.google.com/open?id=0B6a65mzt5o49THU3MFkzV0NmdW8" class="resume-link" target="_blank">View Resume →</a>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animateCursor() {
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+      rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Nav switch between hero and rest
+    const nav = document.getElementById('nav');
+    const heroH = document.getElementById('hero').offsetHeight;
+    window.addEventListener('scroll', () => {
+      if (window.scrollY < heroH - 80) {
+        nav.className = 'over-hero';
+      } else {
+        nav.className = 'scrolled';
+      }
+    });
+
+    // Scroll reveal
+    const obs = new IntersectionObserver(entries => {
+      entries.f
