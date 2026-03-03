@@ -355,8 +355,14 @@
     .resume-link:hover { color: var(--accent); border-color: var(--accent); }
 
     /* ── REVEAL ── */
-    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.85s ease, transform 0.85s ease; }
+    .reveal {
+      opacity: 0; transform: translateY(18px);
+      transition: opacity 0.85s ease, transform 0.85s ease;
+    }
     .reveal.visible { opacity: 1; transform: none; }
+
+    /* 页面加载时在视口内的元素直接显示 */
+    .reveal.init { opacity: 1; transform: none; transition: none; }
 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(26px); }
@@ -407,7 +413,7 @@
     <div class="hero-bg-fallback"></div>
     <div class="hero-bg"></div>
     <div class="hero-content">
-      <p class="hero-eyebrow">UIUX Designer &amp; Photographer — Singapore</p>
+      <p class="hero-eyebrow">Photographer — Singapore</p>
       <h1 class="hero-title">
         Berlin<br>Chen
         <span class="sub">Design &nbsp;·&nbsp; Photography</span>
@@ -422,7 +428,7 @@
   <!-- INDEX BAR -->
   <div class="index-bar reveal">
     <div class="index-item">
-      <span>UIUX Design</span>
+      <span>Design</span>
       <span class="index-num">01</span>
     </div>
     <div class="index-item">
@@ -446,28 +452,18 @@
     </div>
     <div class="about-right">
       <div class="about-bio reveal">
-        <p>I am a <strong>UIUX designer and photographer</strong> based in Singapore, with a focus on crafting intuitive digital experiences and capturing moments that last.</p>
+        <p>I am a <strong>photographer</strong> based in Singapore, with a focus on crafting intuitive digital experiences and capturing moments that last.</p>
         <p>I explore the intersection of technology and human interaction — designing interfaces that feel natural, and images that tell stories without words.</p>
         <p>Currently open to freelance collaborations and creative projects worldwide.</p>
       </div>
       <div class="about-skills reveal" style="transition-delay:0.12s">
         <div>
-          <p class="skill-group-label">Design &amp; Dev</p>
-          <ul class="skill-list">
-            <li>HTML5 / CSS</li>
-            <li>JavaScript</li>
-            <li>Python / Java</li>
-            <li>Sketch / InVision</li>
-            <li>Illustrator</li>
-          </ul>
-        </div>
-        <div>
           <p class="skill-group-label">Photography Gear</p>
           <ul class="skill-list">
-            <li>Nikon D750</li>
+            <li>Nikon Z6II</li>
             <li>Sigma 35mm Art</li>
             <li>Sigma 24-70 Art</li>
-            <li>Fujifilm X-T20</li>
+            <li>Ricoh GRIII</li>
           </ul>
         </div>
       </div>
@@ -554,11 +550,11 @@
 
   <!-- FOOTER -->
   <footer>
-    <p>© 2025 Berlin Chen</p>
-    <a href="https://drive.google.com/open?id=0B6a65mzt5o49THU3MFkzV0NmdW8" class="resume-link" target="_blank">View Resume →</a>
+    <p>© 2026 Berlin Chen</p>
+    <!-- <a href="https://drive.google.com/open?id=0B6a65mzt5o49THU3MFkzV0NmdW8" class="resume-link" target="_blank">View Resume →</a> -->
   </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  <script>
     // Custom cursor
     const cursor = document.getElementById('cursor');
     const ring = document.getElementById('cursorRing');
@@ -583,6 +579,30 @@
       }
     });
 
-    // Scroll reveal
+    // Scroll reveal — 修复版
+    const revealEls = document.querySelectorAll('.reveal');
+
+    // 页面加载时立刻检查哪些元素已在视口内，直接显示无动画
+    revealEls.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        el.classList.add('visible');
+      }
+    });
+
+    // 滚动时触发剩余元素
     const obs = new IntersectionObserver(entries => {
-      entries.f
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), 60);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    revealEls.forEach(el => {
+      if (!el.classList.contains('visible')) obs.observe(el);
+    });
+  </script>
+</body>
+</html>
