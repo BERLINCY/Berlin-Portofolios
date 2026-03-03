@@ -270,15 +270,82 @@
       font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
       color: rgba(255,255,255,0.5);
     }
-    .work-coming {
-      grid-column: 1 / -1;
-      padding: 96px 52px; text-align: center;
-      border-bottom: 1px solid var(--border);
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      display: none;
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(10,11,12,0.96);
+      align-items: center; justify-content: center;
+      flex-direction: column;
     }
-    .work-coming p {
+    .lightbox.active { display: flex; }
+
+    .lightbox-header {
+      position: absolute; top: 0; left: 0; right: 0;
+      padding: 28px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 10;
+    }
+    .lightbox-title {
       font-family: 'Josefin Sans', sans-serif;
-      font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);
+      font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
     }
+    .lightbox-counter {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.6rem; letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.3);
+    }
+    .lightbox-close {
+      position: absolute; top: 28px; right: 40px;
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.5); font-size: 1.4rem;
+      line-height: 1; padding: 4px 8px;
+      transition: color 0.2s;
+    }
+    .lightbox-close:hover { color: var(--white); }
+
+    .lightbox-stage {
+      width: 100%; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 80px 100px;
+      position: relative;
+    }
+    .lightbox-img {
+      max-width: 100%; max-height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      user-select: none;
+    }
+    .lightbox-img.loaded { opacity: 1; }
+
+    .lightbox-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: none; border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.5); cursor: pointer;
+      width: 48px; height: 48px; border-radius: 50%;
+      font-size: 1rem; display: flex; align-items: center; justify-content: center;
+      transition: all 0.25s; z-index: 10;
+    }
+    .lightbox-btn:hover { background: rgba(255,255,255,0.08); color: var(--white); border-color: rgba(255,255,255,0.4); }
+    .lightbox-btn.prev { left: 32px; }
+    .lightbox-btn.next { right: 32px; }
+    .lightbox-btn:disabled { opacity: 0.15; pointer-events: none; }
+
+    .lightbox-dots {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 8px;
+    }
+    .lightbox-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      cursor: pointer; transition: background 0.25s, transform 0.25s;
+    }
+    .lightbox-dot.active { background: var(--white); transform: scale(1.4); }
+
+    /* card cursor pointer */
+    .work-card { cursor: pointer; }
 
     /* ── CONTACT ── */
     #contact {
@@ -448,19 +515,19 @@
         <div class="section-num">01 — About</div>
         <h2>Singapore-<br>based<br>Creative</h2>
       </div>
-      <p class="about-location">Based in Singapore<br>From China</p>
+      <p class="about-location">Based in Singapore<br>to the World</p>
     </div>
     <div class="about-right">
       <div class="about-bio reveal">
         <p>I am a <strong>photographer</strong> based in Singapore, with a focus on crafting intuitive digital experiences and capturing moments that last.</p>
         <p>I explore the intersection of technology and human interaction — designing interfaces that feel natural, and images that tell stories without words.</p>
-        <p>Currently open to freelance collaborations and creative projects worldwide.</p>
+        <p>Currently open to collaborations and creative projects worldwide.</p>
       </div>
       <div class="about-skills reveal" style="transition-delay:0.12s">
         <div>
           <p class="skill-group-label">Photography Gear</p>
           <ul class="skill-list">
-            <li>Nikon Z6II</li>
+            <li>Nikon D750</li>
             <li>Sigma 35mm Art</li>
             <li>Sigma 24-70 Art</li>
             <li>Ricoh GRIII</li>
@@ -470,6 +537,21 @@
     </div>
   </section>
 
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-header">
+      <span class="lightbox-title" id="lb-title"></span>
+      <span class="lightbox-counter" id="lb-counter"></span>
+    </div>
+    <button class="lightbox-close" id="lb-close">✕</button>
+    <div class="lightbox-stage">
+      <button class="lightbox-btn prev" id="lb-prev">&#8592;</button>
+      <img class="lightbox-img" id="lb-img" src="" alt="" />
+      <button class="lightbox-btn next" id="lb-next">&#8594;</button>
+    </div>
+    <div class="lightbox-dots" id="lb-dots"></div>
+  </div>
+
   <!-- WORK -->
   <section id="work">
     <div class="work-header reveal">
@@ -478,34 +560,44 @@
     </div>
     <div class="work-grid">
 
-      <!-- ─ 卡片 1：复制这个块来添加新项目 ─ -->
-      <div class="work-card reveal">
-        <img class="work-card-img" src="assets/img/jeju.jpg" alt="Jeju" />
+      <!-- ─ 项目 1：data-images 里填这个项目的所有照片路径，逗号分隔 ─ -->
+      <div class="work-card reveal"
+        data-title="Kioi Seido"
+        data-sub="Photography"
+        data-images="assets/img/JWJQT_1.jpg,assets/img/JWJQT_2.jpg,assets/img/JWJQT_3.jpg">
+        <img class="work-card-img" src="assets/img/JWJQT_3.jpg" alt="JWJQT" />
         <div class="work-card-overlay"></div>
         <div class="work-card-info">
-          <p class="work-card-title">Jeju Island</p>
-          <p class="work-card-sub">Photography</p>
+          <p class="work-card-title">Kioi Seido</p>
+          <p class="work-card-sub">Tokyo</p>
         </div>
       </div>
 
-      <!-- ─ 卡片 2 ─ -->
-      <div class="work-card reveal" style="transition-delay:0.1s">
-        <img class="work-card-img" src="assets/img/turkey.jpg" alt="Turkey" />
+      <!-- ─ 项目 2 ─ -->
+      <div class="work-card reveal" style="transition-delay:0.1s"
+        data-title="The Sloe"
+        data-sub="Photography"
+        data-images="assets/img/theSlow_1.jpg,assets/img/theSlow_2.jpg,assets/img/theSlow_3.jpg">
+        <img class="work-card-img" src="assets/img/theSlow_2.jpg" alt="theSlow" />
         <div class="work-card-overlay"></div>
         <div class="work-card-info">
-          <p class="work-card-title">Turkey</p>
-          <p class="work-card-sub">Photography</p>
+          <p class="work-card-title">THE SLOW</p>
+          <p class="work-card-sub">Bali</p>
         </div>
       </div>
 
-      <!-- ─ 卡片 3：以后添加新项目就复制上面的块，换图片路径和文字 ─ -->
       <!--
-      <div class="work-card reveal">
-        <img class="work-card-img" src="assets/img/你的图片.jpg" alt="项目名" />
+      ─ 添加新项目模板 ─
+      把 data-images 里的路径换成真实图片，封面图用 src 里的那张
+      <div class="work-card reveal"
+        data-title="项目名称"
+        data-sub="Photography / UIUX Design"
+        data-images="assets/img/p1.jpg,assets/img/p2.jpg,assets/img/p3.jpg,assets/img/p4.jpg">
+        <img class="work-card-img" src="assets/img/p1.jpg" alt="项目名" />
         <div class="work-card-overlay"></div>
         <div class="work-card-info">
           <p class="work-card-title">项目名称</p>
-          <p class="work-card-sub">UIUX Design / Photography</p>
+          <p class="work-card-sub">Photography</p>
         </div>
       </div>
       -->
@@ -579,7 +671,85 @@
       }
     });
 
-    // Scroll reveal — 修复版
+    // ── LIGHTBOX ──
+    const lightbox  = document.getElementById('lightbox');
+    const lbImg     = document.getElementById('lb-img');
+    const lbTitle   = document.getElementById('lb-title');
+    const lbCounter = document.getElementById('lb-counter');
+    const lbDots    = document.getElementById('lb-dots');
+    const lbPrev    = document.getElementById('lb-prev');
+    const lbNext    = document.getElementById('lb-next');
+    const lbClose   = document.getElementById('lb-close');
+
+    let images = [], current = 0;
+
+    function openLightbox(imgs, idx, title) {
+      images = imgs; current = idx;
+      lbTitle.textContent = title;
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      buildDots();
+      showImage(current);
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+      lbImg.classList.remove('loaded');
+    }
+
+    function showImage(idx) {
+      lbImg.classList.remove('loaded');
+      lbImg.src = images[idx];
+      lbImg.onload = () => lbImg.classList.add('loaded');
+      lbCounter.textContent = (idx + 1) + ' / ' + images.length;
+      lbPrev.disabled = idx === 0;
+      lbNext.disabled = idx === images.length - 1;
+      document.querySelectorAll('.lightbox-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === idx);
+      });
+    }
+
+    function buildDots() {
+      lbDots.innerHTML = '';
+      images.forEach((_, i) => {
+        const d = document.createElement('div');
+        d.className = 'lightbox-dot' + (i === 0 ? ' active' : '');
+        d.addEventListener('click', () => { current = i; showImage(current); });
+        lbDots.appendChild(d);
+      });
+    }
+
+    lbPrev.addEventListener('click', () => { if (current > 0) showImage(--current); });
+    lbNext.addEventListener('click', () => { if (current < images.length - 1) showImage(++current); });
+    lbClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+    // 键盘支持
+    document.addEventListener('keydown', e => {
+      if (!lightbox.classList.contains('active')) return;
+      if (e.key === 'ArrowLeft'  && current > 0)              showImage(--current);
+      if (e.key === 'ArrowRight' && current < images.length-1) showImage(++current);
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    // 触屏左右滑动支持
+    let touchX = 0;
+    lightbox.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+    lightbox.addEventListener('touchend',   e => {
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (dx < -50 && current < images.length - 1) showImage(++current);
+      if (dx >  50 && current > 0)                 showImage(--current);
+    });
+
+    // 点击 work card 打开 lightbox
+    document.querySelectorAll('.work-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const imgs  = card.dataset.images.split(',').map(s => s.trim());
+        const title = card.dataset.title || '';
+        openLightbox(imgs, 0, title);
+      });
+    });
     const revealEls = document.querySelectorAll('.reveal');
 
     // 页面加载时立刻检查哪些元素已在视口内，直接显示无动画
