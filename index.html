@@ -10,15 +10,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #F2F3F5;
-      --surface: #E8EAED;
-      --text: #161819;
-      --muted: #9299A0;
+      --bg: #F0F1F3;
+      --surface: #E4E6E9;
+      --text: #111213;
+      --muted: #6B7280;
       --accent: #4A6FA5;
-      --border: #D4D7DC;
+      --border: #CACDD4;
       --white: #FFFFFF;
     }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -357,7 +356,15 @@
         width: 100%;
         object-fit: contain;
       }
-      .lightbox-btn { display: none; }
+      .lightbox-btn {
+        display: flex;
+        width: 40px; height: 40px;
+        background: rgba(0,0,0,0.4);
+        border: none;
+        border-radius: 50%;
+      }
+      .lightbox-btn.prev { left: 12px; }
+      .lightbox-btn.next { right: 12px; }
       .lightbox-close {
         top: 16px; right: 20px;
         width: 44px; height: 44px;
@@ -588,8 +595,8 @@
       <div class="work-card reveal"
         data-title="Kioi Seido"
         data-sub="Photography"
-        data-images="assets/img/JWJQT_1.jpg,assets/img/JWJQT_2.jpg,assets/img/JWJQT_3.jpg">
-        <img class="work-card-img" src="assets/img/JWJQT_3.jpg" alt="JWJQT" />
+        data-images="assets/img/jwjqt_1.jpg,assets/img/jwjqt_2.jpg,assets/img/Jjwjqt_3.jpg">
+        <img class="work-card-img" src="assets/img/jwjqt_3.jpg" alt="jwjqt" />
         <div class="work-card-overlay"></div>
         <div class="work-card-info">
           <p class="work-card-title">Kioi Seido</p>
@@ -724,8 +731,11 @@
 
     function showImage(idx) {
       lbImg.classList.remove('loaded');
-      lbImg.src = images[idx];
-      lbImg.onload = () => lbImg.classList.add('loaded');
+      lbImg.src = '';
+      requestAnimationFrame(() => {
+        lbImg.src = images[idx];
+        lbImg.onload = () => lbImg.classList.add('loaded');
+      }); 
       lbCounter.textContent = (idx + 1) + ' / ' + images.length;
       lbPrev.disabled = idx === 0;
       lbNext.disabled = idx === images.length - 1;
